@@ -74,9 +74,23 @@ namespace MediaPlayer
         {
             ListBoxItem listBoxItem = new ListBoxItem();
             VideoElement video = library.GetLibrary(library.VideoElements.Count - 1);
-            
-            listBoxItem.Content = video.image;
+
+            StackPanel stack = new StackPanel();
+            stack.Width = 160;
+
+            TextBlock title = new TextBlock();
+
+            title.TextWrapping = TextWrapping.Wrap;
+            title.Text = video.title;
+            title.TextAlignment = TextAlignment.Center;
+            title.Foreground = new SolidColorBrush(Colors.White);
+
+            stack.Children.Add(video.image);
+            stack.Children.Add(title);
+
+            listBoxItem.Content = stack;
             listBoxItem.ToolTip = video;
+            listBoxItem.HorizontalAlignment = HorizontalAlignment.Center;
 
             libraryBox.Items.Add(listBoxItem);
         }
@@ -134,8 +148,8 @@ namespace MediaPlayer
             DoubleAnimation animLibraryBlock = (DoubleAnimation)libraryAnim.Children[0];
             DoubleAnimation animButton = (DoubleAnimation)libraryAnim.Children[1];
 
-            animButton.To = !opened ? 205 : 5;
-            animLibraryBlock.To = !opened ? 0 : -200;
+            animButton.To = !opened ? 225 : 5;
+            animLibraryBlock.To = !opened ? 0 : -220;
         }
 
         private void openMenuButton_Click(object sender, RoutedEventArgs e)

@@ -75,15 +75,15 @@
             <Image x:Name="openMenuButton" 
                    Canvas.Left="5" Canvas.Top="317" Cursor="Hand" Source="resources/images/arrow-left.png" MouseLeftButtonUp="openMenuButton_Click"
                    Stretch="Fill" Height="20" Width="20" />
-            <Canvas x:Name="libraryBlock" Width="200" Height="685" Canvas.Left="-200" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Canvas x:Name="libraryBlock" Width="220" Height="685" Canvas.Left="-220" HorizontalAlignment="Center" VerticalAlignment="Top">
                 <Canvas.Background>
                     <SolidColorBrush Color="Black" Opacity="0.4"/>
                 </Canvas.Background>
-                <Border x:Name="Border" Canvas.Left="10" Canvas.Top="10" Background="White" CornerRadius="5" Width="180" Height="35">
+                <Border x:Name="Border" Canvas.Left="10" Canvas.Top="10" Background="White" CornerRadius="5" Width="200" Height="35">
                     <Button x:Name="openButton" Content="Открыть файлы" Click="Button_Click"
-                            Width="180" Height="35" BorderBrush="{x:Null}" Background="{x:Null}"/>
+                            Width="200" Height="35" BorderBrush="{x:Null}" Background="{x:Null}"/>
                 </Border>
-                <ListBox x:Name="libraryBox" MouseDoubleClick="libraryBox_MouseDoubleClick_1" MinHeight="400" HorizontalAlignment="Center" VerticalAlignment="Top" Width="180" Canvas.Left="10" Height="620" Canvas.Top="55" BorderBrush="{x:Null}" Background="{x:Null}"/>
+                <ListBox x:Name="libraryBox" MouseDoubleClick="libraryBox_MouseDoubleClick_1" MinHeight="400" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Canvas.Left="10" Height="620" Canvas.Top="55" BorderBrush="{x:Null}" Background="{x:Null}"/>
             </Canvas>
         </Canvas>
     </Grid>

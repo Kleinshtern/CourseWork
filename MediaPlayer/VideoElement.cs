@@ -56,7 +56,6 @@ namespace MediaPlayer
                 image.Width = 160;
                 image.Height = 100;
                 image.Stretch = Stretch.Fill;
-                image.HorizontalAlignment = HorizontalAlignment.Center;
 
                 return image;
             }
