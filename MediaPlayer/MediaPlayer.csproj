@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="resources\images\arrow-left.png" />
+    <None Remove="resources\images\fullscreen.png" />
+    <None Remove="resources\images\medium-volume.png" />
+    <None Remove="resources\images\pause.png" />
+    <None Remove="resources\images\play-button.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediaToolkit" Version="1.1.0.1" />
+    <PackageReference Include="NAudio" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="resources\images\arrow-left.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\fullscreen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\medium-volume.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\pause.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\play-button.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+</Project>
