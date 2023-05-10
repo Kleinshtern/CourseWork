@@ -27,15 +27,23 @@ namespace MediaPlayer
     public partial class MainWindow : Window
     {
         Library library;
+        public DispatcherTimer timerForBlocks = new DispatcherTimer();
         public bool opened = false;
         public bool fullscreen = false;
+        public int selectedIndex = -1;
         public MainWindow()
         {
             InitializeComponent();
 
             library = new Library("Библиотека");
+
+            timerForBlocks.Interval = TimeSpan.FromSeconds(2);
+            timerForBlocks.Tick += Hidden_Blocks;
         }
 
+        /**
+         * Функция которая открывает выбранные файлы и записывает их в библиотеку
+         */
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
@@ -53,6 +61,9 @@ namespace MediaPlayer
             }
         }
 
+        /**
+         * Кнопка проигрывания, работает через функцию класс Utils, которая проверяет смещение видео во времени
+         */
         private void playButton_Click(object sender, RoutedEventArgs e)
         {
             if(Utils.isPlaying(videoPlayer))
@@ -89,7 +100,7 @@ namespace MediaPlayer
             stack.Children.Add(title);
 
             listBoxItem.Content = stack;
-            listBoxItem.ToolTip = video;
+            listBoxItem.DataContext = video;
             listBoxItem.HorizontalAlignment = HorizontalAlignment.Center;
 
             libraryBox.Items.Add(listBoxItem);
@@ -100,20 +111,8 @@ namespace MediaPlayer
             /**
              * Предполагается что, загружаются только объекты типа VideoElement
              */
-            ListBoxItem selectedVideo = libraryBox.SelectedItem as ListBoxItem;
-            if (selectedVideo != null)
-            {
-                VideoElement video = selectedVideo.ToolTip as VideoElement;
-                videoPlayer.Source = new Uri(video.fileName);
-                videoPlayer.Play();
-
-                if (opened)
-                {
-                    BeginAnimation();
-                }
-
-                playButtonImage.Source = new BitmapImage(new Uri("resources/images/pause.png", UriKind.Relative));
-            }
+            selectedIndex = libraryBox.SelectedIndex;
+            loadVideoInMediaElement();
         }
 
         private void BeginAnimation()
@@ -148,8 +147,15 @@ namespace MediaPlayer
             DoubleAnimation animLibraryBlock = (DoubleAnimation)libraryAnim.Children[0];
             DoubleAnimation animButton = (DoubleAnimation)libraryAnim.Children[1];
 
-            animButton.To = !opened ? 225 : 5;
+            animButton.To = !opened ? 220 : 0;
             animLibraryBlock.To = !opened ? 0 : -220;
+
+            RotateTransform rotateTransform = new RotateTransform();
+            rotateTransform.Angle = !opened ? 180 : 0;
+            rotateTransform.CenterX = openMenuImage.ActualWidth/ 2;
+            rotateTransform.CenterY = openMenuImage.ActualHeight/ 2;
+
+            openMenuImage.RenderTransform= rotateTransform;
         }
 
         private void openMenuButton_Click(object sender, RoutedEventArgs e)
@@ -159,15 +165,15 @@ namespace MediaPlayer
 
         private void fullSizeButton_Click(object sender, RoutedEventArgs e)
         {
-            if(!fullscreen)
+            fullscreen = !fullscreen;
+
+            if(fullscreen)
             {
                 WindowState = WindowState.Maximized;
-                WindowStyle = WindowStyle.None;
             }
             else
             {
                 WindowState = WindowState.Normal;
-                WindowStyle = WindowStyle.SingleBorderWindow;
             }
             setSizePlayer();
         }
@@ -176,44 +182,218 @@ namespace MediaPlayer
         {
             if (e.Key == Key.Escape)
             {
+                fullscreen = !fullscreen;
+
                 WindowState = WindowState.Normal;
-                WindowStyle = WindowStyle.SingleBorderWindow;
                 setSizePlayer();
             }
         }
 
         private void setSizePlayer()
-        {
-            videoPlayer.Width = ActualWidth;
-            videoPlayer.Height = ActualHeight;
-            libraryBlock.Height = ActualHeight;
-
-            fullscreen = !fullscreen;
-            
+        { 
             if(fullscreen)
             {
-                Canvas.SetLeft(libraryBlock, -200);
-                Canvas.SetTop(settingsPanelBlock, ActualHeight - 45);
-                settingsPanelBlock.Width = ActualWidth;
-            }
+                windowHeaderGrid.Visibility = Visibility.Collapsed;
+
+                mainCanvas.Margin = new Thickness(0, 0, 0, 0);
+
+                videoPlayer.Width = ActualWidth;
+                videoPlayer.Height = ActualHeight;
+
+                Canvas.SetTop(settingsPanelBlock, ActualHeight - 40);
+            } 
             else
             {
-                Canvas.SetTop(settingsPanelBlock, 644);
-                settingsPanelBlock.Width = ActualWidth;
+                windowHeaderGrid.Visibility = Visibility.Visible;
+
+                mainCanvas.Margin = new Thickness(0, 30, 0, 0);
+
+                videoPlayer.Width = ActualWidth;
+                videoPlayer.Height = ActualHeight - 30;
+
+                Canvas.SetTop(settingsPanelBlock, ActualHeight - 70);
             }
-            timelineVideo.Width = ActualWidth - 230;
+            timelineVideo.Width = ActualWidth - 290;
         }
 
         private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             videoPlayer.Volume = (double)(e.NewValue / 100.0);
+
+            if(videoPlayer.Volume == 0)
+            {
+                setMutedIcon();
+            } else { setUnmutedIcon(); }
         }
 
         private void timelineVideo_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             videoPlayer.Position = TimeSpan.FromSeconds(timelineVideo.Value);
         }
+         
+        private void videoPlayer_MouseEnter(object sender, MouseEventArgs e)
+        {
+            titleBlock.Visibility = Visibility.Visible;
+            settingsPanelBlock.Visibility = Visibility.Visible;
 
+            timerForBlocks.Start();
+        }
 
+        private void Hidden_Blocks(object sender, EventArgs e) 
+        {
+            titleBlock.Visibility = Visibility.Collapsed;
+            settingsPanelBlock.Visibility = Visibility.Collapsed;
+
+            timerForBlocks.Stop();
+        }
+
+        private void videoPlayer_MouseMove(object sender, MouseEventArgs e)
+        {
+            titleBlock.Visibility = Visibility.Visible;
+            settingsPanelBlock.Visibility = Visibility.Visible;
+
+            timerForBlocks.Start();
+        }
+
+        /**
+         * Функция обрабатывающая также двойной клик по окну, если проходит то вызывается функция кнопки "На полный экран"
+         */
+        private DateTime lastClickTime = DateTime.MinValue;
+        private void videoPlayer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if ((DateTime.Now - lastClickTime).TotalMilliseconds < 300)
+            {
+                lastClickTime = DateTime.MinValue;
+                fullSizeButton_Click(sender, e); 
+            }
+            else { lastClickTime = DateTime.Now; }
+            playButton_Click(sender, e);
+        }
+
+        /**
+         * Громкость при помощи колеса мыши
+         */
+        private void videoPlayer_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            Slider? slider = volumeButton.Template.FindName("volumeSlider", volumeButton) as Slider;
+            if (slider != null) {
+                if (e.Delta < 0 && videoPlayer.Volume > 0)
+                {
+                    slider.Value -= 10;
+                }
+                else if (e.Delta > 0 && videoPlayer.Volume < 100)
+                {
+                    slider.Value += 10;
+                }
+            }
+        }
+
+        private void settingsPanelBlock_MouseEnter(object sender, MouseEventArgs e)
+        {
+            settingsPanelBlock.Visibility = Visibility.Visible;
+            titleBlock.Visibility = Visibility.Visible;
+        }
+
+        private void volumeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(videoPlayer.Volume > 0)
+            {
+                videoPlayer.Volume = 0.0;
+                setMutedIcon();
+            }
+            else {
+                videoPlayer.Volume = 1.0;
+                setUnmutedIcon();
+            }
+        }
+
+        private void setMutedIcon()
+        {
+            volumeImage.Source = new BitmapImage(new Uri("resources/images/mute-speaker.png", UriKind.Relative));
+        }
+
+        private void setUnmutedIcon()
+        {
+            volumeImage.Source = new BitmapImage(new Uri("resources/images/medium-volume.png", UriKind.Relative));
+        }
+
+        private void minusWindowButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void shutdownAppButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void windowHeaderGrid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void volumeSlider_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            Slider? slider = volumeButton.Template.FindName("volumeSlider", volumeButton) as Slider;
+            if (slider.IsVisible)
+            {
+                timelineVideo.Width -= 101;
+            }
+            else
+            {
+                timelineVideo.Width += 101;
+            }
+        }
+
+        private void prevVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(selectedIndex != -1) {
+                selectedIndex -= 1;
+                if(selectedIndex < 0)
+                {
+                    selectedIndex = 0;
+                }
+                libraryBox.SelectedItem = libraryBox.Items[selectedIndex];
+                loadVideoInMediaElement();
+            }
+        }
+
+        private void nextVideoButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedIndex != -1) { 
+                selectedIndex += 1;
+                if(selectedIndex > (libraryBox.Items.Count - 1)) {
+                    selectedIndex = 0;
+                }
+
+                libraryBox.SelectedItem = libraryBox.Items[selectedIndex];
+
+                loadVideoInMediaElement();
+            }
+        }
+
+        private void loadVideoInMediaElement()
+        {
+            ListBoxItem selectedItem = libraryBox.SelectedItem as ListBoxItem;
+
+            VideoElement video = selectedItem.DataContext as VideoElement;
+            videoPlayer.Source = new Uri(video.fileName);
+            videoPlayer.Play();
+
+            mediaTitle.Text = video.title;
+
+            if (opened)
+            {
+               BeginAnimation();
+            }
+
+            playButtonImage.Source = new BitmapImage(new Uri("resources/images/pause.png", UriKind.Relative));
+        }
+
+        private void videoPlayer_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            nextVideoButton_Click(sender, e);
+        }
     }
 }

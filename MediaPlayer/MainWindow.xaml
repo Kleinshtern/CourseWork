@@ -5,38 +5,114 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaPlayer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="720" Width="1280" ResizeMode="NoResize" KeyDown="Window_KeyDown">
+        WindowStyle="None"
+        Title="VideoPlayer" Height="720" Width="1280" ResizeMode="NoResize" KeyDown="Window_KeyDown">
     <Window.Resources>
         <Storyboard x:Key="libraryBlockAnim">
             <DoubleAnimation Storyboard.TargetName="libraryBlock" Storyboard.TargetProperty="(Canvas.Left)" Duration="0:0:0.3"></DoubleAnimation>
             <DoubleAnimation Storyboard.TargetName="openMenuButton" Storyboard.TargetProperty="(Canvas.Left)" Duration="0:0:0.3"></DoubleAnimation>
         </Storyboard>
+        <Style TargetType="StackPanel" x:Key="openButtonMenu">
+            <Setter Property="Width" Value="25"></Setter>
+            <Setter Property="Height" Value="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}"></Setter>
+            <Setter Property="Canvas.Left" Value="0"></Setter>
+        </Style>
+        <Style TargetType="Button" x:Key="hoverOnButton">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="703*"/>
-        </Grid.RowDefinitions>
-
-        <Canvas Margin="0,0,0,-1" Background="White">
+        <Grid x:Name="windowHeaderGrid" Margin="0,0,0,690" 
+              Height="30" Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" Background="#FF3E3E3E"
+              MouseDown="windowHeaderGrid_MouseDown">
+            <TextBlock Foreground="White" Padding="10,0,0,0" VerticalAlignment="Center"><Run Text="VideoPlayer v0.1"/></TextBlock>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Border Width="20" Height="20" CornerRadius="10" Margin="5" Background="#FF45FF45" Cursor="Hand">
+                    <Button x:Name="minusWindowButton" BorderBrush="{x:Null}" Background="{x:Null}" Style="{StaticResource hoverOnButton}" Click="minusWindowButton_Click">
+                        <Image Width="10" Height="10" x:Name="minusButtonImage" Source="resources/images/minus.png" Stretch="Fill"/>
+                    </Button>
+                </Border>
+                <Border Width="20" Height="20" CornerRadius="20" Margin="0,5,5,5" Background="Red" Cursor="Hand">
+                    <Button x:Name="shutdownAppButton" BorderBrush="{x:Null}" Background="{x:Null}" Style="{StaticResource hoverOnButton}" Click="shutdownAppButton_Click">
+                        <Image Width="10" Height="10" x:Name="closeButtonImage" Source="resources/images/close.png" Stretch="Fill"/>
+                    </Button>
+                </Border>
+            </StackPanel>
+        </Grid>
+        <Canvas Name="mainCanvas" Margin="0,30,0,0">
             <Canvas Margin="0" Name="canvasForContent">
-                <TextBlock x:Name="previewLabel" TextWrapping="Wrap" TextAlignment="Center" Canvas.Left="147" Canvas.Top="299" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Top"><Run Text="Здесь будет отображаться видео =)"/><LineBreak/><Run Text="Для загрузки видео необходимо открыть меню по нажатию на кнопку &quot;стрелочек&quot; слева"/></TextBlock>
+                <Border Canvas.Left="167" Canvas.Top="272" CornerRadius="10">
+                    <Border.Background>
+                        <SolidColorBrush Color="Black" Opacity="0.6"/>
+                    </Border.Background>
+                    <TextBlock x:Name="previewLabel" TextWrapping="Wrap" TextAlignment="Center" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" Background="Transparent" Foreground="White" Width="955">
+                    <Run Text="VideoPlayer v0.1" FontFamily="Cascadia Code" FontSize="36"/>
+                    <LineBreak/>
+                    <Run Text="Для загрузки видео необходимо открыть меню по нажатию на кнопку &quot;стрелочек&quot; слева" FontFamily="Cascadia Code"/>
+                    <LineBreak/>
+                    <Run Text="Живилов Дмитрий 2023 г." FontFamily="Cascadia Code"/>
+                    </TextBlock>
+                </Border>
                 <MediaElement x:Name="videoPlayer" 
-                              Height="685"
+                              Height="690"
                               Width="1280"
                               Stretch="Fill" 
                               MediaOpened="videoPlayer_MediaOpened" 
+                              MediaEnded="videoPlayer_MediaEnded"
+                              MouseEnter="videoPlayer_MouseEnter"
+                              MouseMove="videoPlayer_MouseMove"
+                              MouseLeftButtonUp="videoPlayer_MouseLeftButtonUp"
+                              MouseWheel="videoPlayer_MouseWheel"
+                              CacheMode="BitmapCache"
                               LoadedBehavior="Manual" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <StackPanel Name="settingsPanelBlock" Canvas.Top="644" Orientation="Horizontal" Width="1280" Height="40" VerticalAlignment="Center">
+                <StackPanel x:Name="openMenuButton" Style="{StaticResource openButtonMenu}"
+                        VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" 
+                        MouseLeftButtonUp="openMenuButton_Click" Cursor="Hand">
                     <StackPanel.Background>
-                        <SolidColorBrush Color="Black" Opacity="0.4"/>
+                        <SolidColorBrush Color="Black" Opacity="0.4"></SolidColorBrush>
                     </StackPanel.Background>
-                    <Button x:Name="playButton" Click="playButton_Click" Height="26" 
-                            Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Margin="15,0,15,0">
-                        <Image x:Name="playButtonImage" Source="resources/images/play-button.png" Stretch="Fill" />
+                    <Image x:Name="openMenuImage" VerticalAlignment="Center" Source="resources/images/right.png" 
+                   Stretch="Fill" Height="25" Width="25" />
+                </StackPanel>
+                <StackPanel Name="titleBlock" MouseEnter="settingsPanelBlock_MouseEnter" Canvas.Top="0" Orientation="Horizontal"
+                             Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=Window}}" Height="40" VerticalAlignment="Center" Visibility="Collapsed">
+                    <StackPanel.Background>
+                        <SolidColorBrush Color="Black" Opacity="1"></SolidColorBrush>
+                    </StackPanel.Background>
+                    <TextBlock Name="mediaTitle" Foreground="White" VerticalAlignment="Center" Width="1280" FontSize="16" FontWeight="Bold" Padding="10"></TextBlock>
+                </StackPanel>
+                <StackPanel Name="settingsPanelBlock" MouseEnter="settingsPanelBlock_MouseEnter" Canvas.Top="650" Orientation="Horizontal" 
+                            Width="{Binding ActualWidth,RelativeSource={RelativeSource AncestorType=Window}}" Height="40" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
+                    <StackPanel.Background>
+                        <SolidColorBrush Color="Black" Opacity="1"/>
+                    </StackPanel.Background>
+                    <Button x:Name="prevVideoButton" Height="26" Margin="15,0,15,0" BorderBrush="{x:Null}" Foreground="{x:Null}" Cursor="Hand"
+                            Style="{StaticResource hoverOnButton}" Background="{x:Null}" Click="prevVideoButton_Click">
+                        <Image x:Name="prevVideoImage" Source="resources/images/previous.png" Stretch="Fill" />
                     </Button>
-                    <Button x:Name="volumeButton" Height="26"
+                    <Button x:Name="playButton" Click="playButton_Click" Height="26" Cursor="Hand"
+                            Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Margin="0,0,15,0" 
+                            Style="{StaticResource hoverOnButton}">
+                        <Image x:Name="playButtonImage" Source="resources/images/play-button-arrowhead.png" Stretch="Fill" />
+                    </Button>
+                    <Button x:Name="nextVideoButton" Height="26" Margin="0,0,15,0" BorderBrush="{x:Null}" Foreground="{x:Null}" Cursor="Hand"
+                            Style="{StaticResource hoverOnButton}" Background="{x:Null}" Click="nextVideoButton_Click">
+                        <Image x:Name="nextVideoImage" Source="resources/images/next.png" Stretch="Fill" />
+                    </Button>
+                    <Button x:Name="volumeButton" Height="26" Cursor="Hand" Click="volumeButton_Click"
                             Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Margin="0,0,15,0">
-                        <Image x:Name="volumeImage" Source="resources/images/medium-volume.png" Stretch="Fill"></Image>
+                        <Image x:Name="volumeImage" Source="resources/images/medium-volume.png" Stretch="Fill" Margin="0,0,5,0"></Image>
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Template">
@@ -48,7 +124,7 @@
                                                     <ColumnDefinition Width="Auto"></ColumnDefinition>
                                                 </Grid.ColumnDefinitions>
                                                 <ContentPresenter Grid.Column="0"/>
-                                                <Slider Grid.Column="1" ValueChanged="volumeSlider_ValueChanged" TickFrequency="10" x:Name="volumeSlider" Minimum="0" Maximum="100" Value="100" Visibility="Collapsed" VerticalAlignment="Center" Width="100" Height="26" Margin="-2,0,0,-7"/>
+                                                <Slider Grid.Column="1" ValueChanged="volumeSlider_ValueChanged" IsVisibleChanged="volumeSlider_IsVisibleChanged" TickFrequency="10" x:Name="volumeSlider" Minimum="0" Maximum="100" Value="100" Visibility="Collapsed" VerticalAlignment="Center" Width="100" Height="26" Margin="0,0,0,-7"/>
                                             </Grid>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
@@ -64,26 +140,26 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Slider x:Name="timelineVideo" ValueChanged="timelineVideo_ValueChanged" Minimum="0" VerticalAlignment="Center" Width="1050" Margin="-2,0,15,0" />
-                    <Label x:Name="timelineLabel" Content="00:00:00" VerticalAlignment="Center" Foreground="White" Margin="0,0,15,0" />
-                    <Button x:Name="fullSizeButton"  Height="26"
-                            Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="fullSizeButton_Click">
+                    <Slider x:Name="timelineVideo" ValueChanged="timelineVideo_ValueChanged" Minimum="0" VerticalAlignment="Center" Width="973" Margin="-2,0,15,0" />
+                    <Label x:Name="timelineLabel" Content="00:00" VerticalAlignment="Center" Foreground="White" Margin="0,0,15,0" />
+                    <Button x:Name="fullSizeButton"  Height="26" Cursor="Hand"
+                            Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" Style="{StaticResource hoverOnButton}" Click="fullSizeButton_Click">
                         <Image x:Name="fullSizeImage" Source="resources/images/fullscreen.png" Stretch="Fill"/>
                     </Button>
                 </StackPanel>
             </Canvas>
-            <Image x:Name="openMenuButton" 
-                   Canvas.Left="5" Canvas.Top="317" Cursor="Hand" Source="resources/images/arrow-left.png" MouseLeftButtonUp="openMenuButton_Click"
-                   Stretch="Fill" Height="20" Width="20" />
-            <Canvas x:Name="libraryBlock" Width="220" Height="685" Canvas.Left="-220" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Canvas x:Name="libraryBlock" Width="220" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}}" Canvas.Left="-220" HorizontalAlignment="Center" VerticalAlignment="Top" Visibility="Visible">
                 <Canvas.Background>
                     <SolidColorBrush Color="Black" Opacity="0.4"/>
                 </Canvas.Background>
-                <Border x:Name="Border" Canvas.Left="10" Canvas.Top="10" Background="White" CornerRadius="5" Width="200" Height="35">
-                    <Button x:Name="openButton" Content="Открыть файлы" Click="Button_Click"
-                            Width="200" Height="35" BorderBrush="{x:Null}" Background="{x:Null}"/>
-                </Border>
-                <ListBox x:Name="libraryBox" MouseDoubleClick="libraryBox_MouseDoubleClick_1" MinHeight="400" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Canvas.Left="10" Height="620" Canvas.Top="55" BorderBrush="{x:Null}" Background="{x:Null}"/>
+                <Button x:Name="openButton" Click="Button_Click" Cursor="Hand"
+                     Width="220" Height="35" BorderBrush="{x:Null}" Style="{StaticResource hoverOnButton}" Foreground="White" BorderThickness="0,0,0,0" ClipToBounds="True" HorizontalContentAlignment="Center" Background="{x:Null}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="loadFileImage" Source="resources/images/load.png" Width="20"></Image>
+                        <TextBlock Text="Открыть файлы"></TextBlock>
+                    </StackPanel>
+                </Button>
+                <ListBox x:Name="libraryBox" MouseDoubleClick="libraryBox_MouseDoubleClick_1" MinHeight="400" HorizontalAlignment="Center" VerticalAlignment="Top" Width="220" Height="620" Canvas.Top="45" BorderBrush="{x:Null}" Background="{x:Null}"/>
             </Canvas>
         </Canvas>
     </Grid>

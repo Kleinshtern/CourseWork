@@ -9,10 +9,18 @@
 
   <ItemGroup>
     <None Remove="resources\images\arrow-left.png" />
+    <None Remove="resources\images\close.png" />
     <None Remove="resources\images\fullscreen.png" />
+    <None Remove="resources\images\load.png" />
     <None Remove="resources\images\medium-volume.png" />
+    <None Remove="resources\images\minus.png" />
+    <None Remove="resources\images\mute-speaker.png" />
+    <None Remove="resources\images\next.png" />
     <None Remove="resources\images\pause.png" />
+    <None Remove="resources\images\play-button-arrowhead.png" />
     <None Remove="resources\images\play-button.png" />
+    <None Remove="resources\images\previous.png" />
+    <None Remove="resources\images\right.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,16 +32,40 @@
     <Resource Include="resources\images\arrow-left.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="resources\images\close.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="resources\images\fullscreen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\load.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="resources\images\medium-volume.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="resources\images\minus.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\mute-speaker.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\next.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="resources\images\pause.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="resources\images\play-button-arrowhead.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="resources\images\play-button.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\previous.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\images\right.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
